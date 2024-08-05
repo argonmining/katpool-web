@@ -1,5 +1,8 @@
 # React + Vite + Tailwind + Tremor (https://www.tremor.so/)
 
+Target Goal: Example Page: https://nacho-katpool.bubbleapps.io/version-test/?wallet=kaspatest%3A12345&to=Dashboard
+
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
