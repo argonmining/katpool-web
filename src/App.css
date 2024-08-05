@@ -40,3 +40,29 @@
 .read-the-docs {
   color: #888;
 }
+
+body {
+  background-color: #1a202c;
+  color: white;
+}
+
+nav {
+  background-color: #2d3748;
+}
+
+nav a {
+  color: #e2e8f0;
+}
+
+nav a:hover {
+  color: #a0aec0;
+}
+
+p {
+  margin: 0.5rem 0;
+}
+
+.full-width-container {
+  width: 100%;
+  padding: 0 1rem;
+}
