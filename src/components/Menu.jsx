@@ -3,15 +3,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 
 const Menu = ({ onSearch }) => {
-  const [searchValue, setSearchValue] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
-  const handleSearch = () => {
-    if (searchValue.trim()) {
-      onSearch(searchValue);
-      navigate(`/dashboard?wallet=${searchValue}`);
+  const handleSearch = (event) => {
+    event.preventDefault();
+
+    if (searchTerm.trim() !== '') {
+      // Navigate to the Dashboard page with the wallet parameter in the URL
+      navigate(`/dashboard?wallet=${searchTerm.trim()}`);
     }
   };
 
@@ -45,23 +47,16 @@ const Menu = ({ onSearch }) => {
           <img src={logo} alt="katPool" className="h-10 w-10 rounded-full" />
           <span className="text-2xl font-bold text-white">katPool</span>
         </div>
-
         {/* Search Box */}
-        <div className="flex-1 mx-8 max-w-lg">
+        <form onSubmit={handleSearch} className="flex-1 mx-4">
           <input
             type="text"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            placeholder="Search wallet address..."
-            className="w-full h-10 px-4 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleSearch();
-              }
-            }}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by wallet address..."
+            className="w-full p-2 border border-gray-300 rounded-md"
           />
-        </div>
-
+        </form>
         {/* Navigation Menu */}
         <nav className="flex space-x-6">
           <Link to="/" className="text-white hover:text-gray-300">Home</Link>

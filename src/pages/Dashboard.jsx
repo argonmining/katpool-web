@@ -2,11 +2,65 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, Routes, Route } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Menu from '../components/Menu';
-import { Card, Title, BarChart, Table, TableHead, TableRow, TableHeaderCell, TableBody, TableCell } from '@tremor/react';
 import Earnings from './Dashboard/Earnings';
 import Rewards from './Dashboard/Rewards';
+import { Card, Title, BarChart, Table, TableHead, TableRow, TableHeaderCell, TableBody, TableCell } from '@tremor/react';
 
 const DashboardHome = () => {
+  const [networkHashrate, setNetworkHashrate] = useState(null);
+  const [pendingBalance, setPendingBalance] = useState(null); // State for pending balance
+  const location = useLocation(); // Get the location object
+
+  const prometheusBaseUrl = import.meta.env.VITE_PROMETHEUS_BASE_URL || 'https://default-url.com';
+
+  // Extract the wallet address from the URL query parameters
+  const queryParams = new URLSearchParams(location.search);
+  const walletAddress = queryParams.get('wallet');
+
+  useEffect(() => {
+    const fetchHashrateData = async () => {
+      try {
+        const response = await fetch('https://api-v2-do.kas.fyi/analytics/metrics');
+        if (!response.ok) {
+          throw new Error('Failed to fetch network hashrate data');
+        }
+        const data = await response.json();
+        const hashrateInTH = (data.hashrate / 1e12).toFixed(2); // Convert to Terahashes per second
+        setNetworkHashrate(hashrateInTH);
+      } catch (error) {
+        console.error('Error fetching network hashrate:', error);
+      }
+    };
+
+    fetchHashrateData();
+  }, []);
+
+  useEffect(() => {
+    const fetchPendingBalance = async () => {
+      if (!walletAddress) {
+        console.error('No wallet address provided');
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${prometheusBaseUrl}/api/v1/query?query=miner_balances{wallet="${walletAddress}"}`
+        );
+        if (!response.ok) {
+          throw new Error('Failed to fetch pending balance data');
+        }
+        const data = await response.json();
+        const balance = data.data.result[0].value[1];
+        const adjustedBalance = (balance / 1e8).toFixed(2); // Adjust by 8 decimal places
+        setPendingBalance(adjustedBalance);
+      } catch (error) {
+        console.error('Error fetching pending balance:', error);
+      }
+    };
+
+    fetchPendingBalance();
+  }, [walletAddress, prometheusBaseUrl]); // Dependencies
+
   const hashrateData = [
     { hour: '00:00', hashrate: 35 },
     { hour: '01:00', hashrate: 40 },
@@ -78,15 +132,15 @@ const DashboardHome = () => {
     // Add more workers as needed
   ];
 
-  const pendingBalance = 432.00000123;
-
   return (
     <div className="p-8 space-y-8">
       {/* Top Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="rounded-xl shadow-lg bg-gray-400 flex flex-col justify-center items-center p-6">
           <Title className="text-white text-center leading-relaxed">Network Hashrate</Title>
-          <p className="text-4xl font-bold text-white text-center leading-relaxed">523 PH/s</p>
+          <p className="text-4xl font-bold text-white text-center leading-relaxed">
+            {networkHashrate !== null ? `${networkHashrate} TH/s` : 'Loading...'}
+          </p>
         </Card>
         <Card className="rounded-xl shadow-lg bg-gray-400 flex flex-col justify-center items-center p-6">
           <Title className="text-white text-center leading-relaxed">Pool Hashrate</Title>
@@ -99,7 +153,7 @@ const DashboardHome = () => {
         <Card className="rounded-xl shadow-lg bg-gray-400 flex flex-col justify-center items-center p-6">
           <Title className="text-white text-center leading-relaxed">Pending Balance</Title>
           <p className="text-4xl font-bold text-white text-center leading-relaxed">
-            {pendingBalance.toFixed(2)} KAS {/* Limit to 2 decimal places */}
+            {pendingBalance !== null ? `${pendingBalance} KAS` : 'Loading...'}
           </p>
         </Card>
       </div>
@@ -196,7 +250,6 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen flex">
       <Sidebar />
-
       <div className="flex-1 ml-64">
         <Menu />
         <div className="p-8 mt-20">
