@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import PoolStatistics from './pages/PoolStatistics';
 import FAQs from './pages/FAQs';
+import GetConnected from './pages/GetConnected'; // Import the new Get Connected page
 import './index.css';
 
 ReactDOM.render(
@@ -16,6 +17,7 @@ ReactDOM.render(
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/pool-statistics" element={<PoolStatistics />} />
         <Route path="/faqs" element={<FAQs />} />
+        <Route path="/get-connected" element={<GetConnected />} /> {/* Add route for Get Connected */}
       </Routes>
     </Router>
   </React.StrictMode>,
