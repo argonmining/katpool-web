@@ -51,7 +51,7 @@ const Menu = ({ onSearch }) => {
   }, [isDropdownOpen]);
 
   return (
-    <header className={`fixed top-0 left-0 w-full z-50 ${window.location.pathname === '/' ? 'bg-transparent' : 'bg-gradient-to-r from-[#70C7BA] to-[#49EACB]'}`}>
+    <header className={`fixed top-0 left-0 w-full z-50 ${window.location.pathname === '/' ? 'bg-transparent' : 'bg-gradient-to-r from-[#231F20] to-[#70C7BA]'}`}>
       <div className="flex justify-between items-center p-4">
         {/* Logo and Title */}
         <div className="flex items-center space-x-4">

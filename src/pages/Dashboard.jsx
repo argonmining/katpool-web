@@ -7,7 +7,7 @@ import Rewards from './Dashboard/Rewards';
 import {
   Card,
   Title,
-  LineChart, 
+  BarChart,
   Table,
   TableHead,
   TableRow,
@@ -22,7 +22,7 @@ const DashboardHome = () => {
   const [userHashrate48h, setUserHashrate48h] = useState(null);
   const [pendingBalance, setPendingBalance] = useState(null);
   const [workers, setWorkers] = useState([]);
-  const [hashrateOverTime, setHashrateOverTime] = useState([]); 
+  const [hashrateOverTime, setHashrateOverTime] = useState([]);
   const [payments, setPayments] = useState([]); // New state for payments data
   const [currentPage, setCurrentPage] = useState(1); // State for pagination
   const recordsPerPage = 10; // Records per page
@@ -30,6 +30,7 @@ const DashboardHome = () => {
   const location = useLocation();
 
   const prometheusBaseUrl = import.meta.env.VITE_PROMETHEUS_BASE_URL || 'https://default-url.com';
+  const expressBaseUrl = import.meta.env.VITE_EXPRESS_BASE_URL || 'https://default-url.com';
 
   const queryParams = new URLSearchParams(location.search);
   const walletAddress = queryParams.get('wallet');
@@ -54,7 +55,7 @@ const DashboardHome = () => {
           throw new Error('Failed to fetch network hashrate data');
         }
         const data = await response.json();
-        const hashrate = parseFloat(data.hashrate); 
+        const hashrate = parseFloat(data.hashrate);
         setNetworkHashrate(formatHashrate(hashrate));
       } catch (error) {
         console.error('Error fetching network hashrate:', error);
@@ -70,8 +71,8 @@ const DashboardHome = () => {
           throw new Error('Failed to fetch pool hashrate data');
         }
         const data = await response.json();
-        const poolHashrateGHps = parseFloat(data.data.result[0].value[1]); 
-        setPoolHashrate(formatHashrate(poolHashrateGHps * 1e9)); 
+        const poolHashrateGHps = parseFloat(data.data.result[0].value[1]);
+        setPoolHashrate(formatHashrate(poolHashrateGHps * 1e9));
       } catch (error) {
         console.error('Error fetching pool hashrate:', error);
       }
@@ -110,7 +111,7 @@ const DashboardHome = () => {
         const data = await response.json();
         const hashrateGH = parseFloat(data.data.result[0].value[1]);
 
-        return formatHashrate(hashrateGH * 1e9); 
+        return formatHashrate(hashrateGH * 1e9);
       } catch (error) {
         console.error('Error fetching hashrate data:', error);
         return 'N/A';
@@ -162,7 +163,7 @@ const DashboardHome = () => {
           const numericValue = parseFloat(hashrate);
           return acc + (isNaN(numericValue) ? 0 : numericValue);
         }, 0);
-        setUserHashrate48h(formatHashrate(aggregateHashrate * 1e9)); 
+        setUserHashrate48h(formatHashrate(aggregateHashrate * 1e9));
       } catch (error) {
         console.error('Error fetching workers data:', error);
       }
@@ -185,7 +186,7 @@ const DashboardHome = () => {
 
         const formattedData = data.data.result.map(entry => ({
           time: new Date(entry.metric.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          hashrate: parseFloat(entry.value[1]), 
+          hashrate: parseFloat(entry.value[1]),
         }));
 
         setHashrateOverTime(formattedData);
@@ -209,7 +210,7 @@ const DashboardHome = () => {
         }, new Date(0));
 
         const formattedDate = `${lastTimestamp.getMonth() + 1}/${lastTimestamp.getDate()}/${lastTimestamp.getFullYear().toString().slice(-2)}`;
-        const formattedTime = lastTimestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        const formattedTime = lastTimestamp.toLocaleTimeString([], { month: 'short', day: '2-digit' });
 
         return `${formattedDate} ${formattedTime}`;
       } catch (error) {
@@ -225,7 +226,8 @@ const DashboardHome = () => {
       }
 
       try {
-        const response = await fetch(`/api/payments/${walletAddress}`);
+        const response = await fetch(
+          `${expressBaseUrl}/api/payments/${walletAddress}`);
         if (!response.ok) {
           throw new Error('Failed to fetch payment history');
         }
@@ -241,7 +243,7 @@ const DashboardHome = () => {
     fetchPoolHashrate();
     fetchPendingBalance();
     fetchWorkers();
-    fetchHashrateOverTime(); 
+    fetchHashrateOverTime();
     fetchPaymentHistory(); // Fetch payment history data
   }, [walletAddress, prometheusBaseUrl]);
 
@@ -280,20 +282,22 @@ const DashboardHome = () => {
         </Card>
       </div>
 
+      {/* Hashrate Over Time (BarChart) */}
       <Card className="rounded-xl shadow-lg bg-gray-100">
         <Title className="text-center text-black">Hashrate Over Time (Last 48 Hours)</Title>
-        <LineChart
+        <BarChart
           data={hashrateOverTime}
           index="time"
           categories={['hashrate']}
-          colors={['#70C7BA']}  
+          colors={['#70C7BA']}
           yAxisWidth={40}
           label="Hashrate"
           yLabel="Hashrate"
-          xLabel="Time (Hours)"
+          xLabel="Date"
           showXAxis
           showYAxis
           showLegend={false}
+          formatXAxisLabel={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}
         />
       </Card>
 
@@ -348,14 +352,14 @@ const DashboardHome = () => {
                   <TableCell>
                     {payment.timestamp
                       ? new Date(payment.timestamp).toLocaleString('en-US', {
-                          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                          year: 'numeric',
-                          month: '2-digit',
-                          day: '2-digit',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          hour12: true,
-                        })
+                        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                      })
                       : 'N/A'}
                   </TableCell>
                   <TableCell>
