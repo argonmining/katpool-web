@@ -14,7 +14,7 @@ const Sidebar = () => {
       </div>
       <nav className="mt-10">
         <Link to="/dashboard" className={`block py-2.5 px-4 rounded transition duration-200 ${isActive('/dashboard') ? 'bg-gray-200 text-blue-500' : 'text-gray-700 hover:bg-gray-100'}`}>
-          Dashboard
+          Statistics
         </Link>
         <Link to="/dashboard/earnings" className={`block py-2.5 px-4 rounded transition duration-200 ${isActive('/dashboard/earnings') ? 'bg-gray-200 text-blue-500' : 'text-gray-700 hover:bg-gray-100'}`}>
           Earnings
