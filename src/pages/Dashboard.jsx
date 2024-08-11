@@ -190,29 +190,29 @@ const DashboardHome = () => {
       }
     };
 
-    const fetchLastShare = async (minerId) => {
-      try {
-        const response = await fetch(
-          `${prometheusBaseUrl}/api/v1/query?query=miner_shares_with_timestamp{miner_id=\"${minerId}\"}`
-        );
-        if (!response.ok) {
-          throw new Error(`Failed to fetch last share timestamp for ${minerId}`);
-        }
-        const data = await response.json();
-        const lastTimestamp = data.data.result.reduce((latest, entry) => {
-          const timestamp = new Date(entry.metric.timestamp);
-          return timestamp > latest ? timestamp : latest;
-        }, new Date(0));
-    
-        const formattedDate = `${lastTimestamp.getMonth() + 1}/${lastTimestamp.getDate()}/${lastTimestamp.getFullYear().toString().slice(-2)}`;
-        const formattedTime = lastTimestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-    
-        return `${formattedDate} ${formattedTime}`;
-      } catch (error) {
-        console.error('Error fetching last share:', error);
-        return 'N/A';
-      }
-    };
+const fetchLastShare = async (minerId) => {
+  try {
+    const response = await fetch(
+      `${prometheusBaseUrl}/api/v1/query?query=miner_shares_with_timestamp{miner_id=\"${minerId}\"}`
+    );
+    if (!response.ok) {
+      throw new Error(`Failed to fetch last share timestamp for ${minerId}`);
+    }
+    const data = await response.json();
+    const lastTimestamp = data.data.result.reduce((latest, entry) => {
+      const timestamp = new Date(entry.metric.timestamp);
+      return timestamp > latest ? timestamp : latest;
+    }, new Date(0));
+
+    const formattedDate = `${lastTimestamp.getMonth() + 1}/${lastTimestamp.getDate()}/${lastTimestamp.getFullYear().toString().slice(-2)}`;
+    const formattedTime = lastTimestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+
+    return `${formattedDate} ${formattedTime}`;
+  } catch (error) {
+    console.error('Error fetching last share:', error);
+    return 'N/A';
+  }
+};
 
     fetchNetworkHashrate();
     fetchPoolHashrate();
