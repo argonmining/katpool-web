@@ -1,46 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Routes, Route } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Menu from '../components/Menu';
 import { Card, Title, BarChart, Table, TableHead, TableRow, TableHeaderCell, TableBody, TableCell } from '@tremor/react';
+import Earnings from './Dashboard/Earnings';
+import Rewards from './Dashboard/Rewards';
 
-const Dashboard = () => {
-  const location = useLocation();
-  const [wallet, setWallet] = useState('');
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const walletAddress = params.get('wallet');
-    if (walletAddress) {
-      setWallet(walletAddress);
-      // Fetch and update dashboard data based on the walletAddress
-    }
-  }, [location]);
-
-  const pendingBalance = 432.00000123;
-
-  // Dummy data for worker statistics
-  const minerData = [
-    {
-      name: 'IR-KS3M',
-      hashrate15min: '6.01 TH/s',
-      hashrate1hr: '5.75 TH/s',
-      hashrate24hr: '5.83 TH/s',
-      hashrate48hr: '6.10 TH/s',
-      lastShare: '5m ago',
-    },
-    {
-      name: 'AntminerK5SPro',
-      hashrate15min: '18.12 TH/s',
-      hashrate1hr: '21.32 TH/s',
-      hashrate24hr: '22.11 TH/s',
-      hashrate48hr: '21.95 TH/s',
-      lastShare: '2m ago',
-    },
-    // Add more workers as needed
-  ];
-
-  // Dummy data for hashrate over time
+const DashboardHome = () => {
   const hashrateData = [
     { hour: '00:00', hashrate: 35 },
     { hour: '01:00', hashrate: 40 },
@@ -92,121 +58,153 @@ const Dashboard = () => {
     { hour: '23:00', hashrate: 92 },
   ];
 
+  const minerData = [
+    {
+      name: 'IR-KS3M',
+      hashrate15min: '6.01 TH/s',
+      hashrate1hr: '5.75 TH/s',
+      hashrate24hr: '5.83 TH/s',
+      hashrate48hr: '6.10 TH/s',
+      lastShare: '5m ago',
+    },
+    {
+      name: 'AntminerK5SPro',
+      hashrate15min: '18.12 TH/s',
+      hashrate1hr: '21.32 TH/s',
+      hashrate24hr: '22.11 TH/s',
+      hashrate48hr: '21.95 TH/s',
+      lastShare: '2m ago',
+    },
+    // Add more workers as needed
+  ];
+
+  const pendingBalance = 432.00000123;
+
+  return (
+    <div className="p-8 space-y-8">
+      {/* Top Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card className="rounded-xl shadow-lg bg-gray-400 flex flex-col justify-center items-center p-6">
+          <Title className="text-white text-center leading-relaxed">Network Hashrate</Title>
+          <p className="text-4xl font-bold text-white text-center leading-relaxed">523 PH/s</p>
+        </Card>
+        <Card className="rounded-xl shadow-lg bg-gray-400 flex flex-col justify-center items-center p-6">
+          <Title className="text-white text-center leading-relaxed">Pool Hashrate</Title>
+          <p className="text-4xl font-bold text-white text-center leading-relaxed">2.3 PH/s</p>
+        </Card>
+        <Card className="rounded-xl shadow-lg bg-gray-400 flex flex-col justify-center items-center p-6">
+          <Title className="text-white text-center leading-relaxed">Your Hashrate (48h)</Title>
+          <p className="text-4xl font-bold text-white text-center leading-relaxed">33.91 TH/s</p>
+        </Card>
+        <Card className="rounded-xl shadow-lg bg-gray-400 flex flex-col justify-center items-center p-6">
+          <Title className="text-white text-center leading-relaxed">Pending Balance</Title>
+          <p className="text-4xl font-bold text-white text-center leading-relaxed">
+            {pendingBalance.toFixed(2)} KAS {/* Limit to 2 decimal places */}
+          </p>
+        </Card>
+      </div>
+
+      {/* Hashrate Over Time */}
+      <Card className="rounded-xl shadow-lg bg-gray-400">
+        <Title className="text-center text-white">Hashrate Over Time (Last 48 Hours)</Title>
+        <BarChart
+          data={hashrateData}
+          index="hour"
+          categories={['hashrate']}
+          colors={['blue']}
+          yAxisWidth={40}
+          label="Hashrate (TH/s)"
+          yLabel="Hashrate (TH/s)"
+          xLabel="Time (Hours)"
+          showXAxis
+          showYAxis
+          showLegend={false}
+        />
+      </Card>
+
+      {/* Miner Statistics */}
+      <Card className="rounded-xl shadow-lg bg-gray-400">
+        <Title>Workers</Title>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableHeaderCell>Worker Name</TableHeaderCell>
+              <TableHeaderCell>Hashrate (15min)</TableHeaderCell>
+              <TableHeaderCell>Hashrate (1hr)</TableHeaderCell>
+              <TableHeaderCell>Hashrate (24hr)</TableHeaderCell>
+              <TableHeaderCell>Hashrate (48hr)</TableHeaderCell>
+              <TableHeaderCell>Last Share</TableHeaderCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {minerData.map((miner, index) => (
+              <TableRow key={index}>
+                <TableCell>{miner.name}</TableCell>
+                <TableCell>{miner.hashrate15min}</TableCell>
+                <TableCell>{miner.hashrate1hr}</TableCell>
+                <TableCell>{miner.hashrate24hr}</TableCell>
+                <TableCell>{miner.hashrate48hr}</TableCell>
+                <TableCell>{miner.lastShare}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
+
+      {/* Recent Payments */}
+      <Card className="rounded-xl shadow-lg bg-gray-400">
+        <Title>Recent Payments</Title>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableHeaderCell>Timestamp</TableHeaderCell>
+              <TableHeaderCell>Transaction Hash</TableHeaderCell>
+              <TableHeaderCell>Amount</TableHeaderCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {[
+              {
+                timestamp: '12:34 PM',
+                transactionHash: '0xa3b4c5d6e7f8g9h0i1j2k3l4m5n6o7p8q9r0s1t2u3v4w5x6y7z8a9b0c1d2e3f4',
+                amount: '1000 KAS',
+              },
+              {
+                timestamp: '1:22 PM',
+                transactionHash: '0xb4c5d6e7f8g9h0i1j2k3l4m5n6o7p8q9r0s1t2u3v4w5x6y7z8a9b0c1d2e3f4g5h6i',
+                amount: '750 KAS',
+              },
+            ].map((payment, index) => (
+              <TableRow key={index}>
+                <TableCell>{payment.timestamp}</TableCell>
+                <TableCell>
+                  <a href={`https://explorer.kaspa.org/tx/${payment.transactionHash}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+                    {payment.transactionHash}
+                  </a>
+                </TableCell>
+                <TableCell>{payment.amount}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
+    </div>
+  );
+};
+
+const Dashboard = () => {
   return (
     <div className="min-h-screen flex">
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content */}
       <div className="flex-1 ml-64">
-        <Menu onSearch={setWallet} />
-        <div className="p-8 space-y-8 mt-20">
-          {/* Top Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Card className="rounded-xl shadow-lg bg-gray-400 flex flex-col justify-center items-center p-6">
-              <Title className="text-white text-center leading-relaxed">Network Hashrate</Title>
-              <p className="text-4xl font-bold text-white text-center leading-relaxed">523 PH/s</p>
-            </Card>
-            <Card className="rounded-xl shadow-lg bg-gray-400 flex flex-col justify-center items-center p-6">
-              <Title className="text-white text-center leading-relaxed">Pool Hashrate</Title>
-              <p className="text-4xl font-bold text-white text-center leading-relaxed">2.3 PH/s</p>
-            </Card>
-            <Card className="rounded-xl shadow-lg bg-gray-400 flex flex-col justify-center items-center p-6">
-              <Title className="text-white text-center leading-relaxed">Your Hashrate (48h)</Title>
-              <p className="text-4xl font-bold text-white text-center leading-relaxed">33.91 TH/s</p>
-            </Card>
-            <Card className="rounded-xl shadow-lg bg-gray-400 flex flex-col justify-center items-center p-6">
-              <Title className="text-white text-center leading-relaxed">Pending Balance</Title>
-              <p className="text-4xl font-bold text-white text-center leading-relaxed">
-              {pendingBalance.toFixed(2)} KAS {/* Limit to 2 decimal places */}
-                </p>
-            </Card>
-          </div>
-
-          {/* Hashrate Over Time */}
-          <Card className="rounded-xl shadow-lg bg-gray-400">
-            <Title className="text-center text-white">Hashrate Over Time (Last 48 Hours)</Title>
-            <BarChart
-              data={hashrateData}
-              index="hour"
-              categories={['hashrate']}
-              colors={['blue']}
-              yAxisWidth={40}
-              label="Hashrate (TH/s)"
-              yLabel="Hashrate (TH/s)"
-              xLabel="Time (Hours)"
-              showXAxis
-              showYAxis
-              showLegend={false}
-            />
-          </Card>
-
-          {/* Miner Statistics */}
-          <Card className="rounded-xl shadow-lg bg-gray-400">
-            <Title>Workers</Title>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableHeaderCell>Worker Name</TableHeaderCell>
-                  <TableHeaderCell>Hashrate (15min)</TableHeaderCell>
-                  <TableHeaderCell>Hashrate (1hr)</TableHeaderCell>
-                  <TableHeaderCell>Hashrate (24hr)</TableHeaderCell>
-                  <TableHeaderCell>Hashrate (48hr)</TableHeaderCell>
-                  <TableHeaderCell>Last Share</TableHeaderCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {minerData.map((miner, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{miner.name}</TableCell>
-                    <TableCell>{miner.hashrate15min}</TableCell>
-                    <TableCell>{miner.hashrate1hr}</TableCell>
-                    <TableCell>{miner.hashrate24hr}</TableCell>
-                    <TableCell>{miner.hashrate48hr}</TableCell>
-                    <TableCell>{miner.lastShare}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
-
-          {/* Recent Payments */}
-          <Card className="rounded-xl shadow-lg bg-gray-400">
-            <Title>Recent Payments</Title>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableHeaderCell>Timestamp</TableHeaderCell>
-                  <TableHeaderCell>Transaction Hash</TableHeaderCell>
-                  <TableHeaderCell>Amount</TableHeaderCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {[
-                  {
-                    timestamp: '12:34 PM',
-                    transactionHash: '0xa3b4c5d6e7f8g9h0i1j2k3l4m5n6o7p8q9r0s1t2u3v4w5x6y7z8a9b0c1d2e3f4',
-                    amount: '1000 KAS',
-                  },
-                  {
-                    timestamp: '1:22 PM',
-                    transactionHash: '0xb4c5d6e7f8g9h0i1j2k3l4m5n6o7p8q9r0s1t2u3v4w5x6y7z8a9b0c1d2e3f4g5h6i',
-                    amount: '750 KAS',
-                  },
-                ].map((payment, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{payment.timestamp}</TableCell>
-                    <TableCell>
-                      <a href={`https://explorer.kaspa.org/tx/${payment.transactionHash}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
-                        {payment.transactionHash}
-                      </a>
-                    </TableCell>
-                    <TableCell>{payment.amount}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
+        <Menu />
+        <div className="p-8 mt-20">
+          <Routes>
+            <Route path="/" element={<DashboardHome />} />
+            <Route path="earnings" element={<Earnings />} />
+            <Route path="rewards" element={<Rewards />} />
+          </Routes>
         </div>
       </div>
     </div>

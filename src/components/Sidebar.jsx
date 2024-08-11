@@ -16,10 +16,10 @@ const Sidebar = () => {
         <Link to="/dashboard" className={`block py-2.5 px-4 rounded transition duration-200 ${isActive('/dashboard') ? 'bg-gray-200 text-blue-500' : 'text-gray-700 hover:bg-gray-100'}`}>
           Dashboard
         </Link>
-        <Link to="/earnings" className={`block py-2.5 px-4 rounded transition duration-200 ${isActive('/earnings') ? 'bg-gray-200 text-blue-500' : 'text-gray-700 hover:bg-gray-100'}`}>
+        <Link to="/dashboard/earnings" className={`block py-2.5 px-4 rounded transition duration-200 ${isActive('/dashboard/earnings') ? 'bg-gray-200 text-blue-500' : 'text-gray-700 hover:bg-gray-100'}`}>
           Earnings
         </Link>
-        <Link to="/rewards" className={`block py-2.5 px-4 rounded transition duration-200 ${isActive('/rewards') ? 'bg-gray-200 text-blue-500' : 'text-gray-700 hover:bg-gray-100'}`}>
+        <Link to="/dashboard/rewards" className={`block py-2.5 px-4 rounded transition duration-200 ${isActive('/dashboard/rewards') ? 'bg-gray-200 text-blue-500' : 'text-gray-700 hover:bg-gray-100'}`}>
           Rewards
         </Link>
       </nav>
