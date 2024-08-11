@@ -6,12 +6,12 @@
 
 body {
   margin: 0;
-  font-family: 'Lato', sans-serif; /* Set Lato for body text */
-  background-color: #f8fafc; /* Light gray background for the entire app */
+  font-family: 'Lato', sans-serif;
+  background-color: #f1f1f1;
 }
 
 h1, h2, h3, h4, h5, h6, .menu, .sidebar, button {
-  font-family: 'Rubik', sans-serif; /* Set Rubik for headings and menus */
+  font-family: 'Rubik', sans-serif;
   margin: 0;
 }
 
@@ -19,16 +19,31 @@ button {
   outline: none;
 }
 
-/* Custom rounded corners and shadows for cards */
 .card {
   border-radius: 1rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  background-color: #70C7BA; /* Apply primary color as the background for all cards */
 }
 
+/* Sidebar styling */
 .sidebar {
   border-radius: 0 1rem 1rem 0;
+  background-color: #231F20;
 }
 
+/* Table, Chart, and Graph Styling */
 .table, .chart, .graph {
-  background-color: #B6B6B6; /* Updated background color */
+  background-color: #f1f1f1;
+  color: #231F20;
+}
+
+/* Menu Styling */
+.menu {
+  background: linear-gradient(90deg, #70C7BA, #231F20, #49EACB );
+}
+
+/* Additional UI elements styling */
+.ui-element {
+  background-color: #f1f1f1;
+  color: #231F20;
 }
