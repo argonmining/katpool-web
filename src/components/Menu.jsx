@@ -1,12 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import logo from '../assets/logo.png';
 
 const Menu = ({ onSearch }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation(); // Get the location object
   const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    // Check for the wallet parameter in the URL
+    const queryParams = new URLSearchParams(location.search);
+    const walletParam = queryParams.get('wallet');
+
+    if (walletParam) {
+      setSearchTerm(walletParam); // Set the wallet address in the search bar
+    }
+  }, [location]);
 
   const handleSearch = (event) => {
     event.preventDefault();
@@ -47,16 +58,25 @@ const Menu = ({ onSearch }) => {
           <img src={logo} alt="katPool" className="h-10 w-10 rounded-full" />
           <span className="text-2xl font-bold text-white">katPool</span>
         </div>
-        {/* Search Box */}
-        <form onSubmit={handleSearch} className="flex-1 mx-4">
+
+        {/* Centered Search Box */}
+        <form onSubmit={handleSearch} className="flex items-center justify-center flex-1 mx-4">
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by wallet address..."
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full max-w-lg p-2 border border-gray-300 rounded-md"
           />
+          <button 
+            type="submit" 
+            className="ml-2 p-2 bg-white text-black rounded-md hover:bg-gray-200 focus:outline-none">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-7-7l7 7-7 7"></path>
+            </svg>
+          </button>
         </form>
+
         {/* Navigation Menu */}
         <nav className="flex space-x-6">
           <Link to="/" className="text-white hover:text-gray-300">Home</Link>
