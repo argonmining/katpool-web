@@ -1,18 +1,27 @@
-// src/components/Sidebar.jsx
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = () => {
+  const location = useLocation();
+
+  const isActive = (path) => location.pathname === path;
+
   return (
-    <div className="w-64 h-full bg-white shadow-lg rounded-2xl p-6 fixed top-0 left-0 flex flex-col">
-      <div className="flex items-center mb-8">
-        <img src="/path-to-your-logo.png" alt="katPool" className="h-12 w-12" />
-        <span className="ml-3 text-xl font-bold">katPool</span>
+    <div className="fixed top-0 left-0 h-screen w-64 bg-white shadow-lg rounded-tr-3xl rounded-br-3xl">
+      <div className="flex items-center justify-center h-20 border-b">
+        <img src="/logo.png" alt="katPool" className="h-12 w-12 rounded-full" />
+        <span className="text-2xl font-bold ml-2">katPool</span>
       </div>
-      <nav className="flex-grow">
-        <Link to="/dashboard" className="block text-gray-700 hover:text-blue-500 mb-4">Dashboard</Link>
-        <Link to="/earnings" className="block text-gray-700 hover:text-blue-500 mb-4">Earnings</Link>
-        <Link to="/rewards" className="block text-gray-700 hover:text-blue-500">Rewards</Link>
+      <nav className="mt-10">
+        <Link to="/dashboard" className={`block py-2.5 px-4 rounded transition duration-200 ${isActive('/dashboard') ? 'bg-gray-200 text-blue-500' : 'text-gray-700 hover:bg-gray-100'}`}>
+          Dashboard
+        </Link>
+        <Link to="/earnings" className={`block py-2.5 px-4 rounded transition duration-200 ${isActive('/earnings') ? 'bg-gray-200 text-blue-500' : 'text-gray-700 hover:bg-gray-100'}`}>
+          Earnings
+        </Link>
+        <Link to="/rewards" className={`block py-2.5 px-4 rounded transition duration-200 ${isActive('/rewards') ? 'bg-gray-200 text-blue-500' : 'text-gray-700 hover:bg-gray-100'}`}>
+          Rewards
+        </Link>
       </nav>
     </div>
   );
