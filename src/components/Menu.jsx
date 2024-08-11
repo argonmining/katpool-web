@@ -56,7 +56,7 @@ const Menu = ({ onSearch }) => {
         {/* Logo and Title */}
         <div className="flex items-center space-x-4">
           <img src={logo} alt="katPool" className="h-10 w-10 rounded-full" />
-          <span className="text-2xl font-bold text-white">katPool</span>
+          <span className="text-2xl font-bold text-white">Kaspa katPool</span>
         </div>
 
         {/* Centered Search Box */}

@@ -185,7 +185,7 @@ const DashboardHome = () => {
         const data = await response.json();
 
         const formattedData = data.data.result.map(entry => ({
-          time: new Date(entry.metric.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          time: new Date(entry.metric.timestamp).toLocaleTimeString([], { month: 'short', day: '2-digit' }),
           hashrate: parseFloat(entry.value[1]),
         }));
 
@@ -210,7 +210,7 @@ const DashboardHome = () => {
         }, new Date(0));
 
         const formattedDate = `${lastTimestamp.getMonth() + 1}/${lastTimestamp.getDate()}/${lastTimestamp.getFullYear().toString().slice(-2)}`;
-        const formattedTime = lastTimestamp.toLocaleTimeString([], { month: 'short', day: '2-digit' });
+        const formattedTime = lastTimestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
 
         return `${formattedDate} ${formattedTime}`;
       } catch (error) {
