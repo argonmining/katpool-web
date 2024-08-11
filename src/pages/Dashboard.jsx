@@ -81,7 +81,7 @@ const DashboardHome = () => {
 
       try {
         const response = await fetch(
-          `${prometheusBaseUrl}/api/v1/query?query=miner_balances{wallet="${walletAddress}"}`
+          `${prometheusBaseUrl}/api/v1/query?query=miner_balances{wallet=\"${walletAddress}\"}`
         );
         if (!response.ok) {
           throw new Error('Failed to fetch pending balance data');
@@ -98,7 +98,7 @@ const DashboardHome = () => {
     const fetchAndFormatHashrate = async (minerId, timeInterval) => {
       try {
         const response = await fetch(
-          `${prometheusBaseUrl}/api/v1/query?query=avg_over_time(miner_hash_rate_GHps{miner_id="${minerId}"}[${timeInterval}])`
+          `${prometheusBaseUrl}/api/v1/query?query=avg_over_time(miner_hash_rate_GHps{miner_id=\"${minerId}\"}[${timeInterval}])`
         );
         if (!response.ok) {
           throw new Error(`Failed to fetch hashrate data for ${timeInterval}`);
@@ -121,7 +121,7 @@ const DashboardHome = () => {
 
       try {
         const response = await fetch(
-          `${prometheusBaseUrl}/api/v1/query?query=miner_wallet_association{wallet_address="${walletAddress}"}`
+          `${prometheusBaseUrl}/api/v1/query?query=miner_wallet_association{wallet_address=\"${walletAddress}\"}`
         );
         if (!response.ok) {
           throw new Error('Failed to fetch worker miner IDs');
@@ -135,13 +135,15 @@ const DashboardHome = () => {
             const hashrate1h = await fetchAndFormatHashrate(minerId, '1h');
             const hashrate12h = await fetchAndFormatHashrate(minerId, '12h');
             const hashrate24h = await fetchAndFormatHashrate(minerId, '24h');
+            const lastShareTimestamp = await fetchLastShare(minerId);
+
             return {
               minerId,
               hashrate15m,
               hashrate1h,
               hashrate12h,
               hashrate24h,
-              lastShare: 'N/A',
+              lastShare: lastShareTimestamp || 'N/A',
             };
           })
         );
@@ -170,7 +172,7 @@ const DashboardHome = () => {
 
       try {
         const response = await fetch(
-          `${prometheusBaseUrl}/api/v1/query?query=wallet_hashrate_hourly{wallet_address="${walletAddress}"}`
+          `${prometheusBaseUrl}/api/v1/query?query=wallet_hashrate_hourly{wallet_address=\"${walletAddress}\"}`
         );
         if (!response.ok) {
           throw new Error('Failed to fetch hashrate over time data');
@@ -185,6 +187,30 @@ const DashboardHome = () => {
         setHashrateOverTime(formattedData);
       } catch (error) {
         console.error('Error fetching hashrate over time:', error);
+      }
+    };
+
+    const fetchLastShare = async (minerId) => {
+      try {
+        const response = await fetch(
+          `${prometheusBaseUrl}/api/v1/query?query=miner_shares_with_timestamp{miner_id=\"${minerId}\"}`
+        );
+        if (!response.ok) {
+          throw new Error(`Failed to fetch last share timestamp for ${minerId}`);
+        }
+        const data = await response.json();
+        const lastTimestamp = data.data.result.reduce((latest, entry) => {
+          const timestamp = new Date(entry.metric.timestamp);
+          return timestamp > latest ? timestamp : latest;
+        }, new Date(0));
+    
+        const formattedDate = `${lastTimestamp.getMonth() + 1}/${lastTimestamp.getDate()}/${lastTimestamp.getFullYear().toString().slice(-2)}`;
+        const formattedTime = lastTimestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+    
+        return `${formattedDate} ${formattedTime}`;
+      } catch (error) {
+        console.error('Error fetching last share:', error);
+        return 'N/A';
       }
     };
 
