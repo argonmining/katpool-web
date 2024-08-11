@@ -23,6 +23,10 @@ const DashboardHome = () => {
   const [pendingBalance, setPendingBalance] = useState(null);
   const [workers, setWorkers] = useState([]);
   const [hashrateOverTime, setHashrateOverTime] = useState([]); 
+  const [payments, setPayments] = useState([]); // New state for payments data
+  const [currentPage, setCurrentPage] = useState(1); // State for pagination
+  const recordsPerPage = 10; // Records per page
+
   const location = useLocation();
 
   const prometheusBaseUrl = import.meta.env.VITE_PROMETHEUS_BASE_URL || 'https://default-url.com';
@@ -190,36 +194,62 @@ const DashboardHome = () => {
       }
     };
 
-const fetchLastShare = async (minerId) => {
-  try {
-    const response = await fetch(
-      `${prometheusBaseUrl}/api/v1/query?query=miner_shares_with_timestamp{miner_id=\"${minerId}\"}`
-    );
-    if (!response.ok) {
-      throw new Error(`Failed to fetch last share timestamp for ${minerId}`);
-    }
-    const data = await response.json();
-    const lastTimestamp = data.data.result.reduce((latest, entry) => {
-      const timestamp = new Date(entry.metric.timestamp);
-      return timestamp > latest ? timestamp : latest;
-    }, new Date(0));
+    const fetchLastShare = async (minerId) => {
+      try {
+        const response = await fetch(
+          `${prometheusBaseUrl}/api/v1/query?query=miner_shares_with_timestamp{miner_id=\"${minerId}\"}`
+        );
+        if (!response.ok) {
+          throw new Error(`Failed to fetch last share timestamp for ${minerId}`);
+        }
+        const data = await response.json();
+        const lastTimestamp = data.data.result.reduce((latest, entry) => {
+          const timestamp = new Date(entry.metric.timestamp);
+          return timestamp > latest ? timestamp : latest;
+        }, new Date(0));
 
-    const formattedDate = `${lastTimestamp.getMonth() + 1}/${lastTimestamp.getDate()}/${lastTimestamp.getFullYear().toString().slice(-2)}`;
-    const formattedTime = lastTimestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        const formattedDate = `${lastTimestamp.getMonth() + 1}/${lastTimestamp.getDate()}/${lastTimestamp.getFullYear().toString().slice(-2)}`;
+        const formattedTime = lastTimestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
 
-    return `${formattedDate} ${formattedTime}`;
-  } catch (error) {
-    console.error('Error fetching last share:', error);
-    return 'N/A';
-  }
-};
+        return `${formattedDate} ${formattedTime}`;
+      } catch (error) {
+        console.error('Error fetching last share:', error);
+        return 'N/A';
+      }
+    };
+
+    const fetchPaymentHistory = async () => {
+      if (!walletAddress) {
+        console.error('No wallet address provided');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/payments/${walletAddress}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch payment history');
+        }
+        const data = await response.json();
+        setPayments(data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)));
+      } catch (error) {
+        console.error('Error fetching payment history:', error);
+        setPayments([{ transaction_hash: 'No payments exist for this wallet address yet.' }]);
+      }
+    };
 
     fetchNetworkHashrate();
     fetchPoolHashrate();
     fetchPendingBalance();
     fetchWorkers();
     fetchHashrateOverTime(); 
+    fetchPaymentHistory(); // Fetch payment history data
   }, [walletAddress, prometheusBaseUrl]);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const paginatedData = payments.slice((currentPage - 1) * recordsPerPage, currentPage * recordsPerPage);
 
   return (
     <div className="p-8 space-y-8">
@@ -302,7 +332,7 @@ const fetchLastShare = async (minerId) => {
       </Card>
 
       <Card className="rounded-xl shadow-lg bg-gray-100">
-        <Title>Recent Payments</Title>
+        <Title>Payment History</Title>
         <Table>
           <TableHead>
             <TableRow>
@@ -312,30 +342,62 @@ const fetchLastShare = async (minerId) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {[
-              {
-                timestamp: '12:34 PM',
-                transactionHash: '0xa3b4c5d6e7f8g9h0i1j2k3l4m5n6o7p8q9r0s1t2u3v4w5x6y7z8a9b0c1d2e3f4',
-                amount: '1000 KAS',
-              },
-              {
-                timestamp: '1:22 PM',
-                transactionHash: '0xb4c5d6e7f8g9h0i1j2k3l4m5n6o7p8q9r0s1t2u3v4w5x6y7z8a9b0c1d2e3f4g5h6i',
-                amount: '750 KAS',
-              },
-            ].map((payment, index) => (
-              <TableRow key={index}>
-                <TableCell>{payment.timestamp}</TableCell>
-                <TableCell>
-                  <a href={`https://explorer.kaspa.org/tx/${payment.transactionHash}`} target="_blank" rel="noopener noreferrer" className="text-black-500 underline">
-                    {payment.transactionHash}
-                  </a>
+            {paginatedData.length > 0 ? (
+              paginatedData.map((payment, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    {payment.timestamp
+                      ? new Date(payment.timestamp).toLocaleString('en-US', {
+                          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: true,
+                        })
+                      : 'N/A'}
+                  </TableCell>
+                  <TableCell>
+                    {payment.transaction_hash ? (
+                      <a
+                        href={`https://explorer.kaspa.org/tx/${payment.transaction_hash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 underline"
+                      >
+                        {payment.transaction_hash}
+                      </a>
+                    ) : (
+                      'N/A'
+                    )}
+                  </TableCell>
+                  <TableCell>{(payment.amount / 1e8).toFixed(4)} KAS</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan="3" className="text-center">
+                  No payments exist for this wallet address yet.
                 </TableCell>
-                <TableCell>{payment.amount}</TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
+        {/* Pagination Controls */}
+        {payments.length > recordsPerPage && (
+          <div className="flex justify-center mt-4">
+            {Array.from({ length: Math.ceil(payments.length / recordsPerPage) }, (_, index) => (
+              <button
+                key={index}
+                className={`px-3 py-1 mx-1 ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
+                onClick={() => handlePageChange(index + 1)}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
+        )}
       </Card>
     </div>
   );
