@@ -90,16 +90,16 @@ const Menu = ({ onSearch }) => {
               onClick={toggleDropdown}
               className="text-white hover:text-gray-300 flex items-center"
             >
-              Nacho Resources
+              Nacho the Kat
               <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
               </svg>
             </button>
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg">
-                <Link to="/guides" className="block px-4 py-2 text-sm hover:bg-gray-200">Guides</Link>
-                <Link to="/faq" className="block px-4 py-2 text-sm hover:bg-gray-200">FAQs</Link>
-                <Link to="/support" className="block px-4 py-2 text-sm hover:bg-gray-200">Support</Link>
+                <Link to="https://NachoWyborski.xyz" className="block px-4 py-2 text-sm hover:bg-gray-200">Website</Link>
+                <Link to="https://discord.gg/nachothekat" className="block px-4 py-2 text-sm hover:bg-gray-200">Discord</Link>
+                <Link to="/Done" className="block px-4 py-2 text-sm hover:bg-gray-200">Donate</Link>
               </div>
             )}
           </div>
