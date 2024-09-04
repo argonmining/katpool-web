@@ -1,49 +1,41 @@
-/* src/index.css */
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Rubik:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  margin: 0;
-  font-family: 'Lato', sans-serif;
-  background-color: #f1f1f1;
+    font-family: 'Ubuntu', sans-serif;
+    font-style: normal;
 }
 
-h1, h2, h3, h4, h5, h6, .menu, .sidebar, button {
-  font-family: 'Rubik', sans-serif;
-  margin: 0;
+.hero-text {
+    font-family: 'Oswald', sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
 }
 
-button {
-  outline: none;
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
 }
 
-.card {
-  border-radius: 1rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  background-color: #70C7BA; /* Apply primary color as the background for all cards */
+@keyframes slideUp {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-100%);
+    }
 }
 
-/* Sidebar styling */
-.sidebar {
-  border-radius: 0 1rem 1rem 0;
-  background-color: #231F20;
+.slide-down {
+    animation: slideDown 0.5s forwards;
 }
 
-/* Table, Chart, and Graph Styling */
-.table, .chart, .graph {
-  background-color: #f1f1f1;
-  color: #231F20;
-}
-
-/* Menu Styling */
-.menu {
-  background: linear-gradient(90deg, #70C7BA, #231F20, #49EACB );
-}
-
-/* Additional UI elements styling */
-.ui-element {
-  background-color: #f1f1f1;
-  color: #231F20;
+.slide-up {
+    animation: slideUp 0.5s forwards;
 }
